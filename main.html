@@ -69,22 +69,33 @@
 
   function makeMove(row, col) {
     if (gameBoard[row][col] === '') {
-      gameBoard[row][col] = currentPlayer;
-      const cell = document.getElementById('board').children[row * 3 + col];
-      cell.textContent = currentPlayer;
-      cell.classList.add('animate');
+        gameBoard[row][col] = currentPlayer;
+        const cell = document.getElementById('board').children[row * 3 + col];
+        cell.textContent = currentPlayer;
+        cell.classList.add('animate');
 
-      if (checkWin()) {
-        alert(currentPlayer + ' wins!');
-        resetGame();
-      } else if (checkDraw()) {
-        alert('It\'s a draw!');
-        resetGame();
-      } else {
-        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-      }
+        if (checkWin()) {
+            alert(currentPlayer + ' wins!');
+            resetGame();
+        } else if (checkDraw()) {
+            alert('It\'s a draw!');
+            resetGame();
+        } else {
+            if (currentPlayer === 'X') {
+                // Make an AJAX request to call the Python function for player 'X'
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/make_move', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    player: 'X',
+                    row: row,
+                    col: col
+                }));
+            }
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
     }
-  }
+}
 
   function checkWin() {
     for (let i = 0; i < 3; i++) {
