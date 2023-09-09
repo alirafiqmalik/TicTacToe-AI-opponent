@@ -1,10 +1,13 @@
 
-tmp=[
-    ["X","e","O"],
-    ["e","X","X"],
-    ["e","e","O"]
-]
 
+
+
+
+# [
+#     ["X","e","O"],
+#     ["e","X","X"],
+#     ["e","e","O"]
+# ]
 
 
 
@@ -23,8 +26,20 @@ def check_win(gameBoard, current_player):
     
 
 
-def get_score(gameBoard):
-   return check_win(gameBoard, "O")-check_win(gameBoard, "X")
+def get_score(gameBoard,depth):
+  # if(check_win(gameBoard, "O")):
+  #   return 1
+  # elif(check_win(gameBoard, "X")):
+  #   return -1
+  # else:
+  #   return depth
+
+  if(check_win(gameBoard, "O")):
+    return 10-depth
+  elif(check_win(gameBoard, "X")):
+    return depth-10
+  else:
+   return depth
   
 
 
@@ -48,66 +63,71 @@ def get_next_states(gameBoard,player):
   return empty, possibleState
 
 
-def get_min_states(gameBoard,player):
-  score=get_score(gameBoard)
-  
-  if(abs(score)):
-    return score,gameBoard
-
+def get_min_states(gameBoard,player,depth):
 
   empty_count, possible_states = get_next_states(gameBoard,player)
   if(empty_count==0):
-     return 0,gameBoard
- 
+     return get_score(gameBoard,depth),gameBoard
+  
   if(player=="X"):
     next_player="O"
   else:
-    next_player="X"  
+    next_player="X"
+   
 
   score_min=9999
   min_state=None
   for state in possible_states:
-    score_i,_=get_max_states(state,next_player)
+    score_i,tmps=get_max_states(state,next_player,depth+1)
     if(score_min>score_i):
        score_min=score_i
        min_state=state
       
-  return score_min,min_state
+  return get_score(min_state,depth),min_state
 
 
-def get_max_states(gameBoard,player):
-  score=get_score(gameBoard)
-  if(abs(score)):
-    return score,gameBoard
-
+def get_max_states(gameBoard,player,depth):
   empty_count, possible_states = get_next_states(gameBoard,player)
-  if(empty_count==0):
-     return 0,gameBoard
   
-
+  if(empty_count==0):
+     return get_score(gameBoard,depth),gameBoard
+  
   if(player=="X"):
     next_player="O"
   else:
-    next_player="X"  
-  
+    next_player="X"
   
   score_max=-9999
-  max_state=None
+  max_state=[]
   for state in possible_states:
-    score_i,_=get_min_states(state,next_player)
-    if(score_max<score_i):
+    score_i,tmps=get_min_states(state,next_player,depth+1)
+    if(score_max<=score_i):
        score_max=score_i
        max_state=state
-      
-  return score_max,max_state
+
+  # print("MAX ",score_i,depth,max_state,tmpi)
+  return get_score(max_state,depth),max_state
   
   
 
 
-tmp=[['X', 'X', 'O'],
-     ['O', 'X', 'X'],
-     ['e', 'e', 'O']]
+# tmp=[['X', 'e', 'e'],
+#      ['O', 'X', 'e'],
+#      ['X', 'e', 'O']]
+
+tmp=[ 
+  ['X', 'O', 'X'],
+  ['O', 'O', 'e'],
+  ['X', 'X', 'e']
+]
 
 
-a,b=get_max_states(tmp,player="O")
+a,b=get_max_states(tmp,player="O",depth=0)
 print(b)
+
+
+
+# if(player=="X"):
+#     next_player="O"
+#   else:
+#     next_player="X"

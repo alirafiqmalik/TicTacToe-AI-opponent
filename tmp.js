@@ -1,35 +1,29 @@
 let currentPlayer = 'X';
 
-let gameBoard = [
-  ['X', 'X', 'O'],
-  ['O', 'X', 'X'],
-  ['e', 'e', 'O']
-];
-
 
 
 function checkWin(gameBoard,currentPlayer) {
   for (let i = 0; i < 3; i++) {
     if (gameBoard[i][0] === currentPlayer && gameBoard[i][1] === currentPlayer && gameBoard[i][2] === currentPlayer) {
-      return true;
+      return 1;
     }
     if (gameBoard[0][i] === currentPlayer && gameBoard[1][i] === currentPlayer && gameBoard[2][i] === currentPlayer) {
-      return true;
+      return 1;
     }
   }
   if (gameBoard[0][0] === currentPlayer && gameBoard[1][1] === currentPlayer && gameBoard[2][2] === currentPlayer) {
-    return true;
+    return 1;
   }
   if (gameBoard[0][2] === currentPlayer && gameBoard[1][1] === currentPlayer && gameBoard[2][0] === currentPlayer) {
-    return true;
+    return 1;
   }
-  return false;
+  return 0;
 }
 
 
 
-function get_score(gameBoard){
-   return checkWin(gameBoard, "O")-checkWin(gameBoard, "X");
+function get_score(gameBoard,depth){
+   return (checkWin(gameBoard, "O")-checkWin(gameBoard, "X"));
 }
 
 
@@ -59,20 +53,14 @@ function get_next_states(gameBoard,player){
 
 
 
-function get_min_states(gameBoard,player){
-  let score=get_score(gameBoard);
-  
-  if(Math.abs(score)==1){
-    return [score,gameBoard];
-  }
-
+function get_min_states(gameBoard,player,depth){
 
   let next_states = get_next_states(gameBoard,player);
   let empty_count=next_states[0]; 
   let possible_states=next_states[1];
 
   if (empty_count==0) {
-     return [0,gameBoard];
+     return [get_score(gameBoard),gameBoard];
   }
  
   if(player=="X")
@@ -83,33 +71,27 @@ function get_min_states(gameBoard,player){
   let score_min=9999;
   let min_state=null;
   possible_states.forEach(state => {
-    let score_i=get_max_states(state,next_player);
-    if(score_min>score_i[0]){
-      score_min=score_i[0];
+    let [score_i,tmp_state]=get_max_states(state,next_player,depth+1);
+    if(score_min>score_i){
+      score_min=score_i;
       min_state=state;
     }
     
   });
 
-  return [score_min,min_state]
+  return [get_score(min_state,depth),min_state]
 
 }
 
 
-function get_max_states(gameBoard,player){
-  let score=get_score(gameBoard);
-  
-  if(Math.abs(score)==1){
-    return [score,gameBoard];
-  }
-
+function get_max_states(gameBoard,player,depth){
 
   let next_states = get_next_states(gameBoard,player);
   let empty_count=next_states[0]; 
   let possible_states=next_states[1];
 
   if (empty_count==0) {
-     return [0,gameBoard];
+     return [get_score(gameBoard),gameBoard];
   }
  
   if(player=="X")
@@ -121,20 +103,37 @@ function get_max_states(gameBoard,player){
   let max_state=null;
   
   possible_states.forEach(state => {
-    let score_i=get_min_states(state,next_player);
-    if(score_max<score_i[0]){
-       score_max=score_i[0];
+    let [score_i,tmp_state]=get_min_states(state,next_player,depth+1);
+    if(score_max<score_i){
+      // console.log(score_i,depth);
+       score_max=score_i;
        max_state=state;
     }
     
   });
 
-  return [score_max,max_state]
+  return [get_score(max_state,depth),max_state]
 
 }
 
 
+let gameBoard = [ 
+['X', 'e', 'e'],
+['O', 'X', 'e'],
+['X', 'e', 'O']
+];
 
 
-let [score,state]=get_max_states(gameBoard,"O");
-console.log(score,state);
+
+let [score,state]=get_max_states(gameBoard,"O",0);
+// console.log(score,state);
+
+
+
+state[0][1]="X";
+
+// console.log(state[1][1]);
+
+[score,state]=get_max_states(state,"O",0);
+// console.log(score,state);
+
